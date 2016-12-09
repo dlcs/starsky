@@ -1,0 +1,9 @@
+boto3
+requests
+tesserocr
+flask
+futures
+pillow
+lxml
+bs4
+ftfy
