@@ -7,3 +7,4 @@ pillow
 lxml
 bs4
 ftfy
+moto
