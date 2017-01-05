@@ -1,4 +1,3 @@
-from tesserocr import PyTessBaseAPI
 from urllib import quote_plus
 from bs4 import BeautifulSoup
 import settings
@@ -8,9 +7,8 @@ import sys
 import os
 import json
 import requests
-from StringIO import StringIO
-from PIL import Image
 import metadata_indexers
+import importlib
 
 
 def main():
@@ -30,6 +28,7 @@ class Starsky:
         self.ingest_queue = None
         self.error_queue = None
         self.text_queue = None
+        self.ocr_plugin = importlib.import_module(settings.OCR_PLUGIN)
 
     def init(self):
 
@@ -123,31 +122,8 @@ class Starsky:
 
         else:
             # we don't have any metadata, create it
-            metadata, metadata_format = self.ocr_image(image_uri, ocr_hints)
+            metadata, metadata_format = self.ocr_plugin.ocr_image(image_uri, ocr_hints)
             return metadata, metadata_format
-
-    @staticmethod
-    def ocr_image(image_uri, ocr_hints):
-
-        # OCR image to hocr, uses API call to avoid temporary file
-        # TODO : support hints - e.g. DPI via 'well known' key names, trained language, etc.
-        logging.debug("OCRing %s", image_uri)
-
-        # image uri is IIIF endpoint
-        # TODO : revisit - update for max vs full?
-        full_image = ''.join([image_uri, '/full/full/0/default.jpg'])
-        r = requests.get(full_image)
-
-        if r.status_code == 200:
-
-            with PyTessBaseAPI() as api:
-                image = Image.open(StringIO(r.content))
-                api.SetImage(image)
-                hocr = api.GetHOCRText(0)
-        else:
-            raise IOError("Could not obtain %s", image_uri)
-
-        return hocr, 'hocr'
 
     @staticmethod
     def get_width_height(metadata, metadata_format, image_uri):
