@@ -1,14 +1,18 @@
 # Starsky
 
-## Installation
+This is an OCR server and processor. It relies on various AWS features - S3, SQS - so therefore you will need access to an AWS account.
+
+# Using with Docker
+
+## Docker - installation
 
 ```
-git clone https://github.com/john-root/starsky
+git clone https://github.com/dlcs/starsky
 cd starsky
 sudo docker build -t starsky .
 ```
 
-## Running - ingest
+## Docker - Running the ingest process
 ```
 sudo docker run -d --name starsky-ingest \
 	--env AWS_ACCESS_KEY_ID="<access-key>" \
@@ -22,7 +26,7 @@ sudo docker run -d --name starsky-ingest \
 	./run_starsky_ingest.sh
 ```
 
-## Running - service
+## Docker - Running the service process
 ```
 sudo docker run -d --name starsky-service \
 	--env AWS_ACCESS_KEY_ID="<access-key>" \
@@ -34,5 +38,29 @@ sudo docker run -d --name starsky-service \
 	--env STARSKY_AWS_REGION=<aws-region> \
 	starsky \
 	./run_starsky_service.sh
+```
+
+This will listen on port 5000 by default. Add ```-p=<external-port>:5000``` to the Docker run options to map to a different local port.
+
+# Using without Docker
+
+The python code is contained in the ```app``` folder.
+
+To install dependencies:
+```
+pip install Cython
+pip install -r requirements.txt
+```
+
+This in unusual, usually the Cython requirement would be in the requirements.txt file, but due to the parallel calls that pip install makes, the installation fails.
+
+## Running the ingest process
+```
+./run_starsky_ingest.sh
+```
+
+## Running the service process
+```
+./run_starsky_service.sh
 ```
 
