@@ -6,5 +6,5 @@ futures
 pillow
 lxml
 bs4
-ftfy
+ftfy==4.4
 moto
