@@ -21,6 +21,8 @@ sudo docker run -d --name starsky-ingest \
 	--env STARSKY_TEXT_METADATA_BUCKET=<text-metadata-bucket> \
 	--env STARSKY_INDEX_BUCKET=<index-bucket-name> \
 	--env STARSKY_INGEST_QUEUE=<ingest-queue-name> \
+	--env STARSKY_TEXT_QUEUE=<text-queue-name> \
+	--env STARSKY_MANIFEST_QUEUE=<manifest-queue-name> \
 	--env STARSKY_AWS_REGION=<aws-region> \
 	starsky \
 	./run_starsky_ingest.sh
@@ -35,6 +37,8 @@ sudo docker run -d --name starsky-service \
 	--env STARSKY_TEXT_METADATA_BUCKET=<text-metadata-bucket> \
 	--env STARSKY_INDEX_BUCKET=<index-bucket-name> \
 	--env STARSKY_INGEST_QUEUE=<ingest-queue-name> \
+	--env STARSKY_TEXT_QUEUE=<text-queue-name> \
+	--env STARSKY_MANIFEST_QUEUE=<manifest-queue-name> \
 	--env STARSKY_AWS_REGION=<aws-region> \
 	starsky \
 	./run_starsky_service.sh

@@ -8,4 +8,3 @@ COPY app /opt/starsky
 WORKDIR /opt/starsky
 RUN pip install Cython
 RUN pip install -r requirements.txt
-EXPOSE 5000
