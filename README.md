@@ -28,6 +28,24 @@ sudo docker run -d --name starsky-ingest \
 	./run_starsky_ingest.sh
 ```
 
+## Docker - Running the ingest-manifest process
+```
+sudo docker run -d --name starsky-ingest-manifest \
+	--env AWS_ACCESS_KEY_ID="<access-key>" \
+        --env AWS_SECRET_ACCESS_KEY="<secret-key>"  \
+	--env STARSKY_ERROR_QUEUE=<error-queue-name> \
+	--env STARSKY_TEXT_METADATA_BUCKET=<text-metadata-bucket> \
+	--env STARSKY_INDEX_BUCKET=<index-bucket-name> \
+	--env STARSKY_INGEST_QUEUE=<ingest-queue-name> \
+	--env STARSKY_TEXT_QUEUE=<text-queue-name> \
+	--env STARSKY_MANIFEST_QUEUE=<manifest-queue-name> \
+	--env STARSKY_AWS_REGION=<aws-region> \
+	starsky \
+	./run_starsky_ingest_manifest.sh
+```
+
+This will listen on port 5000 by default. Add ```-p=<external-port>:5000``` to the Docker run options to map to a different local port.
+
 ## Docker - Running the service process
 ```
 sudo docker run -d --name starsky-service \
