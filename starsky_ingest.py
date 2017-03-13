@@ -9,6 +9,7 @@ import json
 import requests
 import metadata_indexers
 import importlib
+import iris_client
 
 
 def main():
@@ -29,6 +30,7 @@ class Starsky:
         self.error_queue = None
         self.text_queue = None
         self.ocr_plugin = importlib.import_module(settings.OCR_PLUGIN)
+        self.iris = None
 
     def init(self):
 
@@ -38,6 +40,7 @@ class Starsky:
         self.ingest_queue = aws.get_queue_by_name(self.sqs, settings.INGEST_QUEUE)
         self.error_queue = aws.get_queue_by_name(self.sqs, settings.ERROR_QUEUE)
         self.text_queue = aws.get_queue_by_name(self.sqs, settings.TEXT_QUEUE)
+        self.iris = iris_client.IrisClient()
 
     def run(self):
 
@@ -66,6 +69,7 @@ class Starsky:
                     "imageURI": "<Image_Uri>",
                     "metadataURI": "<alto, hocr, plaintext URI>,
                     "hints": {"orig_dpi": 600}],       # or e.g. "textConfidence": 100
+                    "session: "<guid as string>"  (optional)
                 }
             ...
             ]
@@ -82,6 +86,7 @@ class Starsky:
             image_uri = image.get("imageURI")
             metadata_uri = image.get("metadataURI")
             ocr_hints = image.get("hints")
+            session = image.get("session")
 
             # get or generate text metadata
             local_metadata, metadata_format = self.get_metadata(image_uri, metadata_uri, ocr_hints)
@@ -106,11 +111,17 @@ class Starsky:
             image_data['start_index'] = start_index
             image_data['confidence'] = confidence
 
-            # store iamge data in S3 as json blob
+            # store image data in S3 as json blob
             self.store_json(image_uri, json.dumps(image_data))
 
             # push plaintext for image to queue for indexer
             self.push_text(image_uri, word_index)
+
+            self.iris.send_iris_message({
+                'message_type': 'Starsky_Image_Processed',
+                'image_uri': image_uri,
+                'session': session
+            })
 
     def get_metadata(self, image_uri, metadata_uri, ocr_hints):
 
