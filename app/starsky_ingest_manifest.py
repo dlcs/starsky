@@ -60,12 +60,13 @@ class IngestManifest:
 
         message_data = json.loads(message.body)
         manifest_uri = message_data.get("manifestURI")
+        session = message_data.get("session")
         if manifest_uri is not None:
-            self.ingest_manifest(manifest_uri)
+            self.ingest_manifest(manifest_uri, session)
         else:
             logging.error("No manifest URI found")
 
-    def ingest_manifest(self, manifest_uri):
+    def ingest_manifest(self, manifest_uri, session=None):
 
         image_uris = []
 
@@ -89,6 +90,8 @@ class IngestManifest:
                     service_type, service_uri = self.get_text_service(canvas)
                     if service_type is not None and service_type in ['hocr', 'alto'] and service_uri is not None:
                         image['metadataURI'] = service_uri
+                    if session is not None:
+                        image['session'] = session
 
                     image_uris.append(image)
 
@@ -99,7 +102,7 @@ class IngestManifest:
             queue.send_message(MessageBody=json.dumps(message))
 
         else:
-            print "Error retriving manifest"
+            print("Error retriving manifest")
 
     def get_text_service(self, canvas):
 
