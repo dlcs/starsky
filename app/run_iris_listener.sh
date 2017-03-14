@@ -2,4 +2,8 @@
 
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
 
-python iris_listener.py
+touch iris.log
+
+python iris_listener.py &
+
+tail -f iris.log
