@@ -1,15 +1,17 @@
-from urllib import quote_plus
-from bs4 import BeautifulSoup
-import settings
-import logging
-import aws
-import sys
-import os
-import json
-import requests
-import metadata_indexers
 import importlib
-import iris_client
+import json
+import logging
+import os
+import sys
+from urllib import quote_plus
+
+import requests
+from bs4 import BeautifulSoup
+
+import aws
+import metadata_indexers
+import settings
+from app import iris_client
 
 
 def main():

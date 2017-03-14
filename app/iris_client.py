@@ -1,10 +1,12 @@
-import iris_settings
-import logging
-import boto3
-import time
 import json
+import logging
+import time
 import uuid
 from collections import OrderedDict
+
+import boto3
+
+import iris_settings
 
 
 class IrisClient:
