@@ -11,7 +11,7 @@ from bs4 import BeautifulSoup
 import aws
 import metadata_indexers
 import settings
-from app import iris_client
+import iris_client
 
 
 def main():
