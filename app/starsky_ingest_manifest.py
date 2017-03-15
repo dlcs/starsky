@@ -36,6 +36,7 @@ class IngestManifest:
         self.sqs = aws.get_sqs_resource()
         self.manifest_queue = aws.get_queue_by_name(self.sqs, settings.MANIFEST_QUEUE)
         self.starsky_ingest_queue = aws.get_queue_by_name(self.sqs, settings.INGEST_QUEUE)
+        self.error_queue = aws.get_queue_by_name(self.sqs, settings.ERROR_QUEUE)
 
     def run(self):
 
