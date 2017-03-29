@@ -8,3 +8,4 @@ lxml
 bs4
 ftfy==4.4
 moto
+awscli

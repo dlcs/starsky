@@ -2,4 +2,8 @@
 
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
 
-python starsky_ingest_manifest.py
+touch starsky_ingest_manifest.log
+
+python starsky_ingest_manifest.py &
+
+tail -f starsky_ingest_manifest.log
