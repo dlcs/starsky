@@ -3,7 +3,11 @@ import os
 MESSAGES_PER_FETCH = 5
 POLL_INTERVAL = 20
 PUSH_PLAINTEXT = True
-OCR_PLUGIN = "ocr.tesseract_api"
+ocr = os.environ.get('STARSKY_OCR')
+if ocr is not None:
+    OCR_PLUGIN = ocr
+else:
+    OCR_PLUGIN = "ocr.tesseract_api"
 REGION = os.environ.get('STARSKY_AWS_REGION')  # e.g. 'eu-west-1'
 INGEST_QUEUE = os.environ.get('STARSKY_INGEST_QUEUE')  # e.g. 'starsky-ingest-queue'
 ERROR_QUEUE = os.environ.get('STARSKY_ERROR_QUEUE')  # e.g. 'starsky-error-queue'
