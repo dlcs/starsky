@@ -111,7 +111,8 @@ def get_word_dict(word, text_format, line_bounds, line_count, count, char_count)
             word_dict['width'] = word_dict['end_x'] - word_dict['start_x']
             word_dict['height'] = word_dict['end_y'] - word_dict['start_y']
 
-            if word['title'].split(';')[1].split()[0] == "x_wconf":
+            parts = word['title'].split(';')
+            if len(parts) > 1 and parts[1].split()[0] == "x_wconf":
                 word_dict['confidence'] = int(word['title'].split(';')[1].split()[-1])
 
     else:  # alto
