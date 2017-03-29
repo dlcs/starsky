@@ -9,3 +9,7 @@ bs4
 ftfy==4.4
 moto
 awscli
+google-api-python-client
+google-cloud
+oauth2client
+jinja2
