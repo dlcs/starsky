@@ -32,6 +32,11 @@ def ocr_image(image_uri, ocr_hints):
     image = vision_client.image(source_uri=full_image)
     texts = image.detect_full_text()
 
+    if len(texts.pages) == 0:
+        logging.debug("No pages returned from Vision API")
+        if 'error' in texts:
+            logging.debug(texts['error'])
+
     source_page = texts.pages[0]
     page = {
         'id': 'page_1',
