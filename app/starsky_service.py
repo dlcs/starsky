@@ -1,6 +1,7 @@
 import logging
 from urllib import quote_plus
 import concurrent.futures
+from botocore.exceptions import ClientError
 from flask import Flask, request, jsonify, send_file
 import json
 import StringIO
@@ -51,21 +52,24 @@ def coords_service():
 
 def get_concurrent_coords(images):
     results = []
+    # TODO pass in text index to reduce loading
     with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
         futures = {executor.submit(get_coords, image): image for image in images}
         for future in concurrent.futures.as_completed(futures):
             image = futures[future]
             try:
-                word_result = future.result()
+                image_result = future.result()
             except:
                 logging.exception("Error in future")
             else:
-                results.append(word_result)
+                results.append(image_result)
     return results
 
 
 @app.route('/coordsimage/<image_index>/', methods=['POST'])
 def coords_image_service(image_index):
+
+    # this obtains the same data as get_concurrent_coords but draws boxes over the source image
 
     request_data = request.get_json()
     images = request_data.get("images")
@@ -107,6 +111,8 @@ def plaintext_service():
 
     s3 = aws.get_s3_resource()
     text_data = get_text_index(s3, image_uri)
+    if text_data is None:
+        return jsonify({image_uri: ""})
     word_index = text_data.get("word_index")
 
     text = " ".join(map(lambda w: w['text'], word_index))
@@ -122,6 +128,8 @@ def plaintextlines_service():
 
     s3 = aws.get_s3_resource()
     text_data = get_text_index(s3, image_uri)
+    if text_data is None:
+        return jsonify({image_uri: []})
     word_index = text_data.get("word_index")
 
     o_width = text_data.get("width")
@@ -176,11 +184,12 @@ def confidence_service():
 def get_confidence(image):
 
     s3 = aws.get_s3_resource()
-    text_data = get_text_index(s3, image)
     result = {"imageURI": image}
-    confidence = text_data.get('confidence')
-    if confidence is not None:
-        result['confidence'] = confidence
+    text_data = get_text_index(s3, image)
+    if text_data is not None:
+        confidence = text_data.get('confidence')
+        if confidence is not None:
+            result['confidence'] = confidence
     return result
 
 
@@ -195,8 +204,13 @@ def get_coords(image):
     boxes = []
     s3 = aws.get_s3_resource()
     image_uri = image.get("imageURI")
+    output = {
+        "image_uri": image_uri
+    }
     positions = image.get("positions")
     text_data = get_text_index(s3, image_uri)
+    if text_data is None:
+        return output
 
     o_width = text_data.get("width")
     o_height = text_data.get("height")
@@ -242,10 +256,7 @@ def get_coords(image):
             p_boxes = box_join(phrase_boxes)
         boxes.append(p_boxes)
 
-    output = {
-        "image_uri": image_uri,
-        "phrases": boxes
-    }
+    output['phrases'] = boxes
     return output
 
 
@@ -305,7 +316,14 @@ def box_to_object(box):
 def get_text_index(s3, image_uri):
 
     encoded_uri = quote_plus(image_uri)
-    obj = aws.get_s3_object(s3, settings.INDEX_BUCKET, encoded_uri)
+    try:
+        obj = aws.get_s3_object(s3, settings.INDEX_BUCKET, encoded_uri)
+    except ClientError:
+        logging.debug("Metadata not found in S3 for %", image_uri)
+        return None
+    if obj.status != 200:
+        logging.error("Could not get metadata from S3 for %s", image_uri)
+        return None
     body = obj.get("Body").read()
     return json.loads(body)
 
