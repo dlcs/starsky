@@ -34,8 +34,7 @@ def ocr_image(image_uri, ocr_hints):
 
     if len(texts.pages) == 0:
         logging.debug("No pages returned from Vision API")
-        if 'error' in texts:
-            logging.debug(texts['error'])
+    # logging.debug(vars(texts))
 
     source_page = texts.pages[0]
     page = {
@@ -147,7 +146,12 @@ def get_language_codes(detected_languages):
 
 def main():
 
-    res = ocr_image("", {})
+    logging.basicConfig(filename="vision-test.log",
+                        filemode='a',
+                        level=logging.DEBUG,
+                        format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s', )
+
+    res = ocr_image("https://dlcs-ida.org/iiif-img/2/1/M-1304_R-13_0175", {})
     print(res)
 
 
