@@ -6,14 +6,14 @@ class TextOCRFormat(unittest.TestCase):
 
     def test_alto(self):
 
-        alto = open('fixtures/b20402533_0010.xml').read()
+        alto = open('app/tests/fixtures/b20402533_0010.xml').read()
         starsky = starsky_ingest.Starsky()
         format = starsky.identify_format(alto)
         self.assertEqual(format, 'alto')
 
     def test_hocr(self):
 
-        hocr = open('fixtures/vet1.html').read()
+        hocr = open('app/tests/fixtures/vet1.html').read()
         starsky = starsky_ingest.Starsky()
         format = starsky.identify_format(hocr)
         self.assertEqual(format, 'hocr')
