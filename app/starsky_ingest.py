@@ -95,6 +95,18 @@ class Starsky:
                 # get or generate text metadata
                 local_metadata, metadata_format = self.get_metadata(image_uri, metadata_uri, ocr_hints)
 
+                if local_metadata is None:
+
+                    # no metadata supplied and no usable metadata could be generated
+                    self.iris.send_iris_message({
+                        'message_type': 'Starsky_Image_Processed',
+                        'image_uri': image_uri,
+                        'session': session,
+                        'flag_no_text': 'true',
+                        'resolution': 'success'
+                    })
+                    return
+
                 # store metadata in s3
                 self.store_metadata(image_uri, local_metadata)
 
