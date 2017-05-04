@@ -111,15 +111,17 @@ class Starsky:
                 self.store_metadata(image_uri, local_metadata)
 
                 # obtain width and height of OCRed image from metadata
-                width, height = self.get_width_height(local_metadata, metadata_format, image_uri)
+                ocr_width, ocr_height, canvas_width, canvas_height = self.get_width_height(local_metadata, metadata_format, image_uri)
 
                 # create image data structure for output
                 image_data = {
                     'metadata_format': metadata_format,
                 }
-                if width is not None and height is not None:
-                    image_data['width'] = width
-                    image_data['height'] = height
+                if ocr_width is not None and ocr_height is not None:
+                    image_data['width'] = ocr_width
+                    image_data['height'] = ocr_height
+                    image_data['canvas_width'] = canvas_width
+                    image_data['canvas_height'] = canvas_height
 
                 # generate indexes and add to image data
                 word_index, start_index, confidence = metadata_indexers.get_words(local_metadata, metadata_format)
@@ -166,6 +168,18 @@ class Starsky:
         # heights and widths are in units native to the format, as output is scaled the unit is irrelevant as
         # long as the word boxes are stored in the same unit
 
+        width = None
+        height = None
+
+        # TODO : consider retry?
+        response = requests.get(image_uri + "/info.json")
+        if response.status_code != 200:
+            raise IOError("ImageURI not found")
+        else:
+            info = json.loads(response.text)
+            canvas_width = int(info.get('width'))
+            canvas_height = int(info.get('height'))
+
         if metadata_format == 'alto':
             soup = BeautifulSoup(metadata, "html.parser")
             attributes_dictionary = soup.find('page').attrs
@@ -181,21 +195,12 @@ class Starsky:
                 bbox = split[1].split()[1:]
                 width = int(bbox[2]) - int(bbox[0])
                 height = int(bbox[3]) - int(bbox[1])
-            else:
-                # TODO : consider retry?
-                response = requests.get(image_uri + "/info.json")
-                if response.status_code != 200:
-                    raise IOError("ImageURI not found")
-                else:
-                    info = json.loads(response.text)
-                    width = int(info.get('width'))
-                    height = int(info.get('height'))
 
-        else:
-            # plaintext
-            width, height = None, None
+        if width is None or height is None:
+            width = canvas_width
+            height = canvas_height
 
-        return width, height
+        return width, height, canvas_width, canvas_height
 
 
     @staticmethod
