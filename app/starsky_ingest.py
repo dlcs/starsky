@@ -130,9 +130,6 @@ class Starsky:
                 # store image data in S3 as json blob
                 self.store_json(image_uri, json.dumps(image_data))
 
-                # push plaintext for image to queue for indexer
-                self.push_text(image_uri, word_index)
-
                 self.iris.send_iris_message({
                     'message_type': 'Starsky_Image_Processed',
                     'image_uri': image_uri,
@@ -200,14 +197,6 @@ class Starsky:
 
         return width, height
 
-    def push_text(self, image_uri, word_index):
-
-        # if enabled, push plaintext of image to SQS queue for indexing
-
-        if settings.PUSH_PLAINTEXT:
-            logging.debug("Pushing plaintext to indexer queue for %s", image_uri)
-            text = " ".join(map(lambda w: w['text'], word_index))
-            aws.send_message(self.text_queue, json.dumps({image_uri: text}))
 
     @staticmethod
     def identify_format(local_metadata):
