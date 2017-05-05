@@ -2,7 +2,6 @@ import os
 
 MESSAGES_PER_FETCH = 5
 POLL_INTERVAL = 20
-PUSH_PLAINTEXT = True
 ocr = os.environ.get('STARSKY_OCR')
 if ocr is not None:
     OCR_PLUGIN = ocr

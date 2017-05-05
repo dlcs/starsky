@@ -87,12 +87,13 @@ def coords_image_service(image_index):
 
     for output_image in results:
         if output_image.get('image_uri') == base_uri:
-            boxes = output_image.get('xywh')
-            draw = ImageDraw.Draw(image)
-            for box in boxes:
-                x, y, w, h = box.split(',')
-                draw.rectangle(((int(x), int(y)),  (int(x) + int(w), int(y) + int(h))), outline="green")
-                draw.rectangle(((int(x) - 1, int(y) -1), (int(x) + int(w) + 1, int(y) + int(h) + 1)), outline="green")
+            phrases = output_image.get('phrases')
+            for phrase in phrases:
+                draw = ImageDraw.Draw(image)
+                for box in phrase:
+                    x, y, w, h = box['xywh'].split(',')
+                    draw.rectangle(((int(x), int(y)),  (int(x) + int(w), int(y) + int(h))), outline="green")
+                    draw.rectangle(((int(x) - 1, int(y) -1), (int(x) + int(w) + 1, int(y) + int(h) + 1)), outline="green")
 
     return serve_pil_image(image)
 
@@ -214,6 +215,8 @@ def get_coords(image):
 
     o_width = text_data.get("width")
     o_height = text_data.get("height")
+    canvas_width = text_data.get("canvas_width")
+    canvas_height = text_data.get("canvas_height")
     if o_width is None or o_height is None:
         output = {
             "imageURI": image_uri,
@@ -224,8 +227,17 @@ def get_coords(image):
     word_index = text_data.get("word_index")
     start_index = text_data.get("start_index")
 
-    width = image.get("width")
-    height = image.get("height")
+    # width to project coordinates in
+    if 'width' in image:
+        width = image.get("width")
+    else:
+        width = canvas_width
+
+    # height to project coordinates in
+    if 'height' in image:
+        height = image.get("height")
+    else:
+        height = canvas_height
 
     scale_w = float(width) / float(o_width)
     scale_h = float(height) / float(o_height)
@@ -320,9 +332,6 @@ def get_text_index(s3, image_uri):
         obj = aws.get_s3_object(s3, settings.INDEX_BUCKET, encoded_uri)
     except ClientError:
         logging.debug("Metadata not found in S3 for %", image_uri)
-        return None
-    if obj.status != 200:
-        logging.error("Could not get metadata from S3 for %s", image_uri)
         return None
     body = obj.get("Body").read()
     return json.loads(body)
