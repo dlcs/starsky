@@ -87,12 +87,13 @@ def coords_image_service(image_index):
 
     for output_image in results:
         if output_image.get('image_uri') == base_uri:
-            boxes = output_image.get('xywh')
-            draw = ImageDraw.Draw(image)
-            for box in boxes:
-                x, y, w, h = box.split(',')
-                draw.rectangle(((int(x), int(y)),  (int(x) + int(w), int(y) + int(h))), outline="green")
-                draw.rectangle(((int(x) - 1, int(y) -1), (int(x) + int(w) + 1, int(y) + int(h) + 1)), outline="green")
+            phrases = output_image.get('phrases')
+            for phrase in phrases:
+                draw = ImageDraw.Draw(image)
+                for box in phrase:
+                    x, y, w, h = box['xywh'].split(',')
+                    draw.rectangle(((int(x), int(y)),  (int(x) + int(w), int(y) + int(h))), outline="green")
+                    draw.rectangle(((int(x) - 1, int(y) -1), (int(x) + int(w) + 1, int(y) + int(h) + 1)), outline="green")
 
     return serve_pil_image(image)
 
@@ -331,9 +332,6 @@ def get_text_index(s3, image_uri):
         obj = aws.get_s3_object(s3, settings.INDEX_BUCKET, encoded_uri)
     except ClientError:
         logging.debug("Metadata not found in S3 for %", image_uri)
-        return None
-    if obj.status != 200:
-        logging.error("Could not get metadata from S3 for %s", image_uri)
         return None
     body = obj.get("Body").read()
     return json.loads(body)
