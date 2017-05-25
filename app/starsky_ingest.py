@@ -99,7 +99,8 @@ class Starsky:
 
                     # no metadata supplied and no usable metadata could be generated
                     self.iris.send_iris_message({
-                        'message_type': 'Starsky_Image_Processed',
+                        'message_type': 'Image_Processed',
+                        'process': 'starsky',
                         'image_uri': image_uri,
                         'session': session,
                         'flag_no_text': 'true',
@@ -133,7 +134,8 @@ class Starsky:
                 self.store_json(image_uri, json.dumps(image_data))
 
                 self.iris.send_iris_message({
-                    'message_type': 'Starsky_Image_Processed',
+                    'message_type': 'Image_Processed',
+                    'process': 'starsky',
                     'image_uri': image_uri,
                     'session': session,
                     'resolution': 'success'
@@ -143,7 +145,8 @@ class Starsky:
 
                 logging.exception("Error getting messages")
                 self.iris.send_iris_message({
-                    'message_type': 'Starsky_Image_Processed',
+                    'message_type': 'Image_Processed',
+                    'process': 'starsky',
                     'image_uri': image_uri,
                     'session': session,
                     'resolution': 'failure'
