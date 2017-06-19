@@ -31,6 +31,80 @@ to the queue configured with STARSKY_MANIFEST_QUEUE. This will be picked up by s
 ```
 one for the first image on each canvas of the first sequence. These messages are placed in the queue defined by STARSKY_INGEST_QUEUE . starsky_ingest.py picks up these messages and follows the ingest procedure described .
 
+# Starsky services
+
+### Plaintext
+
+Gets plan text for the image uri supplied
+
+method : GET 
+example:
+```/plaintext/?imageURI=https://dlcs.io/iiif-img/50/1/000214ef-74f3-4ec2-9a5f-3b79f50fc500```
+
+returns:
+
+```
+{
+    "https://dlcs.io/iiif-img/50/1/000214ef-74f3-4ec2-9a5f-3b79f50fc500": " 2'38 REVIEW orr vnsr-zs's Tirex'rrse tion\" of which should be \" counteracted we ask again, how is the object of the institution to be accomplished, or what is to become ofthe poor pupil .' Either Mr. Coleman is, or is not capable of teachingr phy- siology and the treatment of disease. About this, although he mayunot have kept l'ull pace with the advance of Veterinary science, and althou'rh he may push some of his l'uVourite theories to an absurd and [ludicro..."
+}
+```
+
+### Plaintext lines
+
+Where possible this splits the plaintext representation into separate lines
+
+
+
+### Coordinates
+
+Gets the coordinates of bounding boxes around phrases, typically used to avoid storing bounding boxes for every word in a search service, instead just storing the position of the first character. The input requires the uri of the image as well as the character positions of the first character of each token in the phrase which were stored when they were indexed.  The returned result may contain more than one phrase (and hence bounding boxe) if the positions supplied overlap more than one line.
+
+method: POST
+example request:
+```
+{
+  "images": [
+    {
+      "imageURI": "https://dlcs.io/iiif-img/50/1/9a6d377f-5403-4e15-93e2-e2ffa6213f17",
+      "width": "1024",
+      "positions": [
+        [
+          "64",
+          "68",
+          "72",
+          "77"
+        ]
+      ],
+      "height": "768"
+    }
+  ]
+}
+```
+
+example response:
+
+```
+{
+  "images": [
+    {
+      "image_uri": "https://dlcs.io/iiif-img/50/1/9a6d377f-5403-4e15-93e2-e2ffa6213f17",
+      "phrases": [
+        [
+          {
+            "count": 2,
+            "xywh": "881,98,87,8"
+          },
+          {
+            "count": 2,
+            "xywh": "253,115,186,9"
+          }
+        ]
+      ]
+    }
+  ]
+}
+```
+
 # Using with Docker
 
 ## Docker - installation
