@@ -4,7 +4,7 @@ This is an OCR server and processor for the DLCS. It relies on various AWS featu
 
 ## Sub-components
 
-- starsky_inget_mainifest.py - SQS listener for manifest level ingest
+- starsky_ingest_mainifest.py - SQS listener for manifest level ingest
 - starsky_ingest.py - SQS listener for image lvel ingest
 - starsky_serice.py - HTTP services
 - iris_listener.py - listens for incoming "Destiny_Manifest_Added" messages from Iris, indicating that new manfiests are available for procesing in the text pipeline. 
@@ -128,7 +128,7 @@ sudo docker run -d --name starsky-ingest \
 	--env STARSKY_MANIFEST_QUEUE=<manifest-queue-name> \
 	--env STARSKY_AWS_REGION=<aws-region> \
 	starsky \
-	./run_starsky_ingest.sh
+	./starsky.sh ingest
 ```
 
 ## Docker - Running the ingest-manifest process
@@ -144,7 +144,7 @@ sudo docker run -d --name starsky-ingest-manifest \
 	--env STARSKY_MANIFEST_QUEUE=<manifest-queue-name> \
 	--env STARSKY_AWS_REGION=<aws-region> \
 	starsky \
-	./run_starsky_ingest_manifest.sh
+	./starsky.sh ingest-manifest
 ```
 
 This will listen on port 5000 by default. Add ```-p=<external-port>:5000``` to the Docker run options to map to a different local port.
@@ -162,7 +162,7 @@ sudo docker run -d --name starsky-service \
 	--env STARSKY_MANIFEST_QUEUE=<manifest-queue-name> \
 	--env STARSKY_AWS_REGION=<aws-region> \
 	starsky \
-	./run_starsky_service.sh
+	./starsky.sh service
 ```
 
 This will listen on port 5000 by default. Add ```-p=<external-port>:5000``` to the Docker run options to map to a different local port.
@@ -177,15 +177,15 @@ pip install Cython
 pip install -r requirements.txt
 ```
 
-This in unusual, usually the Cython requirement would be in the requirements.txt file, but due to the parallel calls that pip install makes, the installation fails.
+This is unusual, usually the Cython requirement would be in the requirements.txt file, but due to the parallel calls that pip install makes, the installation fails.
 
 ## Running the ingest process
 ```
-./run_starsky_ingest.sh
+./starsky.sh ingest
 ```
 
 ## Running the service process
 ```
-./run_starsky_service.sh
+./starsky.sh service
 ```
 

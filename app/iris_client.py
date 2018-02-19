@@ -84,9 +84,7 @@ class IrisListener:
     @staticmethod
     def set_logging():
 
-        logging.basicConfig(filename="iris.log",
-                            filemode='a',
-                            level=logging.DEBUG,
+        logging.basicConfig(level=logging.DEBUG,
                             format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s', )
         logging.getLogger('boto').setLevel(logging.ERROR)
         logging.getLogger('botocore').setLevel(logging.ERROR)
