@@ -252,9 +252,7 @@ class Starsky:
     @staticmethod
     def set_logging():
 
-        logging.basicConfig(filename="starsky_ingest.log",
-                            filemode='a',
-                            level=logging.DEBUG,
+        logging.basicConfig(level=logging.DEBUG,
                             format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s', )
         logging.getLogger('boto3').setLevel(logging.ERROR)
         logging.getLogger('botocore').setLevel(logging.ERROR)

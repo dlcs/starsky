@@ -331,16 +331,14 @@ def get_text_index(s3, image_uri):
     try:
         obj = aws.get_s3_object(s3, settings.INDEX_BUCKET, encoded_uri)
     except ClientError:
-        logging.debug("Metadata not found in S3 for %", image_uri)
+        logging.debug("Metadata not found in S3 for %s", image_uri)
         return None
     body = obj.get("Body").read()
     return json.loads(body)
 
 
 def set_logging():
-    logging.basicConfig(filename="starsky_service.log",
-                        filemode='a',
-                        level=logging.DEBUG,
+    logging.basicConfig(level=logging.DEBUG,
                         format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s', )
     logging.getLogger('boto').setLevel(logging.ERROR)
     logging.getLogger('botocore').setLevel(logging.ERROR)
