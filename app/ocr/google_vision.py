@@ -34,6 +34,7 @@ def ocr_image(image_uri, ocr_hints):
 
     if len(texts.pages) == 0:
         logging.debug("No pages returned from Vision API")
+        return None
     # logging.debug(vars(texts))
 
     source_page = texts.pages[0]
