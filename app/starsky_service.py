@@ -155,6 +155,7 @@ def plaintextlines_service():
             current_line = word['line_number']
         line += word['text'] + " "
         line_boxes.append(get_box(word, scale_w, scale_h))
+    lines.append({"text": line, "xywh": box_join(line_boxes)}) # last line
     return jsonify({"lines": lines})
 
 
