@@ -6,6 +6,8 @@ try:
 except ImportError:
     from io import StringIO
 from google.cloud import vision
+from google.cloud.vision import types
+
 import os
 from jinja2 import Environment, FileSystemLoader
 
@@ -28,9 +30,11 @@ def ocr_image(image_uri, ocr_hints):
     # TODO : revisit - update for max vs full?
     full_image = ''.join([image_uri, '/full/full/0/default.jpg'])
 
-    vision_client = vision.Client()
-    image = vision_client.image(source_uri=full_image)
-    texts = image.detect_full_text()
+    vision_client = vision.ImageAnnotatorClient()
+    image = types.Image()
+    image.source.image_uri = full_image
+    response = vision_client.document_text_detection(image=image)
+    texts = response.full_text_annotation
 
     if len(texts.pages) == 0:
         logging.debug("No pages returned from Vision API")
@@ -152,7 +156,7 @@ def main():
                         level=logging.DEBUG,
                         format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s', )
 
-    res = ocr_image("https://dlcs-ida.org/iiif-img/2/1/M-1304_R-13_0175", {})
+    res = ocr_image("https://dlc.services/iiif-img/48/19/0b50d8d1-15dd-4184-840a-e37420b392db", {})
     print(res)
 
 
