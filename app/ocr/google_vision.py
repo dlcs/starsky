@@ -39,7 +39,7 @@ def ocr_image(image_uri, ocr_hints):
     texts = response.full_text_annotation
 
     if len(texts.pages) == 0:
-        logging.debug("No pages returned from Vision API")
+        logging.info("No pages returned from Vision API")
         return None, None
     # logging.debug(vars(texts))
 
