@@ -106,7 +106,7 @@ class Starsky:
                         'flag_no_text': 'true',
                         'resolution': 'success'
                     })
-                    return
+                    continue
 
                 # store metadata in s3
                 self.store_metadata(image_uri, local_metadata)
