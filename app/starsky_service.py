@@ -210,6 +210,7 @@ def get_coords(image):
         "image_uri": image_uri
     }
     positions = image.get("positions")
+    single_box = image.get("single-box") is True
     text_data = get_text_index(s3, image_uri)
     if text_data is None:
         return output
@@ -254,7 +255,7 @@ def get_coords(image):
                 # todo handle
                 pass
             word_data = word_index[idx]
-            p_boxes = box_join(get_box(word_data, scale_w, scale_h))
+            p_boxes = box_join(get_box(word_data, scale_w, scale_h), single_box=single_box)
         else:
             # phrase
             phrase_boxes = []
@@ -266,7 +267,7 @@ def get_coords(image):
                 word_data = word_index[idx]
                 position_box = get_box(word_data, scale_w, scale_h)
                 phrase_boxes.append(position_box)
-            p_boxes = box_join(phrase_boxes)
+            p_boxes = box_join(phrase_boxes, single_box=single_box)
         boxes.append(p_boxes)
 
     output['phrases'] = boxes
@@ -279,7 +280,7 @@ def get_box(box_data, scale_w, scale_h):
             int(box_data.get("width") * scale_w), int(box_data.get("height") * scale_h)]
 
 
-def box_join(boxes):
+def box_join(boxes, single_box=False):
 
     # check for list of boxes
     if any(isinstance(i, list) or isinstance(i, tuple) for i in boxes):
@@ -293,12 +294,14 @@ def box_join(boxes):
 
         box_count = 0
         for box in boxes:
-            if box[0] != current_line:
+            if current_line == -1:
+                current_line = box[0]
+            if not single_box and box[0] != current_line:
                 if current_line != -1:
                     super_boxes.append([current_line, box_count, min_x, min_y, (max_x - min_x), (max_y - min_y)])
                     min_x, max_x, min_y, max_y = None, None, None, None
                     box_count = 0
-            current_line = box[0]
+                    current_line = box[0]
             box_count += 1
             if min_x is None or box[2] < min_x:
                 min_x = box[2]
