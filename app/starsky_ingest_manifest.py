@@ -10,7 +10,6 @@ import aws
 
 
 def main():
-
     ingest = IngestManifest()
     ingest.init()
     if len(sys.argv) == 2:
@@ -71,7 +70,8 @@ class IngestManifest:
 
         image_uris = []
 
-        response = requests.get(manifest_uri)
+        response = requests.get(settings.PRESLEY_BASE + "/customer/manifest",
+                                params={'manifest_id': manifest_uri})
 
         if response.status_code == 200:
 
@@ -117,7 +117,6 @@ class IngestManifest:
                 return self.identify_see_also(canvas['seeAlso'])
         except KeyError:
             return None, None
-
 
     def identify_see_also(self, see_also):
 
