@@ -14,4 +14,4 @@ MANIFEST_QUEUE = os.environ.get('STARSKY_MANIFEST_QUEUE')  # e.g. 'starsky-error
 TEXT_QUEUE = os.environ.get('STARSKY_TEXT_QUEUE')  # e.g. 'starsky-text-queue'
 TEXT_METADATA_BUCKET = os.environ.get('STARSKY_TEXT_METADATA_BUCKET')  # e.g. 'starsky-text-meta'
 INDEX_BUCKET = os.environ.get('STARSKY_INDEX_BUCKET')  # e.g. 'starsky-index'
-
+PRESLEY_BASE = os.environ.get('STARSKY_PRESLEY_BASE')
