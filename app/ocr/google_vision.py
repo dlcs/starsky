@@ -30,13 +30,14 @@ def ocr_image(image_uri, ocr_hints):
     # TODO : revisit - update for max vs full?
     full_image = ''.join([image_uri, '/full/full/0/default.jpg'])
     vision_client = vision.ImageAnnotatorClient()
-    image_response = requests.get(full_image)
-    if not str(image_response.status_code).startswith("2"):
-        logging.debug("Could not get source image")
-        return None, None
-    image = types.Image(content=image_response.content)
-    response = vision_client.document_text_detection(image=image)
-    texts = response.full_text_annotation
+    with requests.Session() as s:
+        image_response = s.get(full_image)
+        if not str(image_response.status_code).startswith("2"):
+            logging.debug("Could not get source image")
+            return None, None
+        image = types.Image(content=image_response.content)
+        response = vision_client.document_text_detection(image=image)
+        texts = response.full_text_annotation
 
     if len(texts.pages) == 0:
         logging.info("No pages returned from Vision API")
