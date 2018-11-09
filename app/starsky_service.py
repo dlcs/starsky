@@ -183,6 +183,18 @@ def confidence_service():
     return jsonify(response_data)
 
 
+@app.route('/metadata/', methods=['GET'])
+def source_metadata():
+
+    image_uri = request.args.get('imageURI')
+
+    s3 = aws.get_s3_resource()
+    metadata = get_source_metadata(s3, image_uri)
+    if metadata is None:
+        return "", 404
+    return metadata
+
+
 def get_confidence(image):
 
     s3 = aws.get_s3_resource()
@@ -336,6 +348,18 @@ def get_text_index(s3, image_uri):
         return None
     body = obj.get("Body").read()
     return json.loads(body)
+
+
+def get_source_metadata(s3, image_uri):
+
+    encoded_uri = quote_plus(image_uri)
+    try:
+        obj = aws.get_s3_object(s3, settings.TEXT_METADATA_BUCKET, encoded_uri)
+    except ClientError:
+        logging.debug("Original metadata not found in S3 for %s", image_uri)
+        return None
+    body = obj.get("Body").read()
+    return body
 
 
 def set_logging():
