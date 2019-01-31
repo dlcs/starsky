@@ -16,6 +16,7 @@ TEMPLATE_ENVIRONMENT = Environment(
     autoescape=False,
     loader=FileSystemLoader(os.path.dirname(os.path.abspath(__file__))),
     trim_blocks=False)
+VISION_CLIENT = vision.ImageAnnotatorClient()
 
 
 def render_template(template_filename, context):
@@ -29,14 +30,14 @@ def ocr_image(image_uri, ocr_hints):
     # image uri is IIIF endpoint
     # TODO : revisit - update for max vs full?
     full_image = ''.join([image_uri, '/full/full/0/default.jpg'])
-    vision_client = vision.ImageAnnotatorClient()
+
     with requests.Session() as s:
         image_response = s.get(full_image)
         if not str(image_response.status_code).startswith("2"):
             logging.debug("Could not get source image")
             return None, None
         image = types.Image(content=image_response.content)
-        response = vision_client.document_text_detection(image=image)
+        response = VISION_CLIENT.document_text_detection(image=image)
         texts = response.full_text_annotation
 
     if len(texts.pages) == 0:
