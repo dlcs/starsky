@@ -193,11 +193,11 @@ class Starsky:
             soup = BeautifulSoup(metadata, "html.parser")
             page_element = soup.find("div", {"class": "ocr_page"})
             title = page_element['title']
-            split = title.split(';')
-            if len(split) > 1:
-                bbox = split[1].split()[1:]
-                width = int(bbox[2]) - int(bbox[0])
-                height = int(bbox[3]) - int(bbox[1])
+            for param in title.split(';'):
+                values = param.split()
+                if values[0] == "bbox":
+                    width = int(values[3]) - int(values[1])
+                    height = int(values[4]) - int(values[2])
 
         if width is None or height is None:
             width = canvas_width
