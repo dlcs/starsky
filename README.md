@@ -2,6 +2,26 @@
 
 This is an OCR server and processor for the DLCS. It relies on various AWS features - S3, SQS - so therefore you will need access to an AWS account. For more information on the DLCS see http://dlcs.info
 
+<!-- TOC depthFrom:2 -->
+
+- [Sub-components](#sub-components)
+- [Operation](#operation)
+- [Starsky services](#starsky-services)
+  - [Plaintext](#plaintext)
+  - [Plaintext lines](#plaintext-lines)
+  - [Coordinates](#coordinates)
+- [Using with Docker](#using-with-docker)
+  - [Docker - installation](#docker---installation)
+  - [AWS CREDENTIALS NOTE](#aws-credentials-note)
+  - [Docker - Running the ingest process](#docker---running-the-ingest-process)
+  - [Docker - Running the ingest-manifest process](#docker---running-the-ingest-manifest-process)
+  - [Docker - Running the service process](#docker---running-the-service-process)
+- [Using without Docker](#using-without-docker)
+  - [Running the ingest process](#running-the-ingest-process)
+  - [Running the service process](#running-the-service-process)
+
+<!-- /TOC -->
+
 ## Sub-components
 
 - starsky_ingest_mainifest.py - SQS listener for manifest level ingest
@@ -9,7 +29,7 @@ This is an OCR server and processor for the DLCS. It relies on various AWS featu
 - starsky_service.py - HTTP services
 - iris_listener.py - listens for incoming "Destiny_Manifest_Added" messages from Iris, indicating that new manfiests are available for procesing in the text pipeline. 
 
-# Operation
+## Operation
 
 Usually Starsky is fed by the iris_listener.py listener which recieves the Iris event stream via its queue (defined by the IRIS_QUEUE environment variable) and for any "Destiny_Manifest_Added" events it adds a message on the manifest ingest queue described below. However content may be added to starsky via one of several other entry points all based upon SQS queues. The simplest is to send a message such as the following to the queue configured with STARSKY_MANIFEST_QUEUE. 
 
@@ -31,15 +51,17 @@ This will be picked up by starsky_ingest_manifest.py. The manifest URI should be
 ```
 one for the first image on each canvas of the first sequence. These messages are placed in the queue defined by STARSKY_INGEST_QUEUE . starsky_ingest.py picks up these messages and follows the ingest procedure described .
 
-# Starsky services
+## Starsky services
 
 ### Plaintext
 
 Gets plaintext for the image URI supplied
 
-method : GET 
+method : GET
 example:
-```/plaintext/?imageURI=https://dlcs.io/iiif-img/50/1/000214ef-74f3-4ec2-9a5f-3b79f50fc500```
+```
+/plaintext/?imageURI=https://dlcs.io/iiif-img/50/1/000214ef-74f3-4ec2-9a5f-3b79f50fc500
+```
 
 returns:
 
@@ -52,7 +74,6 @@ returns:
 ### Plaintext lines
 
 Where possible this splits the plaintext representation into separate lines.
-
 
 ### Coordinates
 
@@ -104,9 +125,9 @@ example response:
 }
 ```
 
-# Using with Docker
+## Using with Docker
 
-## Docker - installation
+### Docker - installation
 
 ```
 git clone https://github.com/dlcs/starsky
@@ -114,10 +135,10 @@ cd starsky
 sudo docker build -t starsky .
 ```
 
-## AWS CREDENTIALS NOTE
+### AWS CREDENTIALS NOTE
 AWS credential environment variables are not required if running as an ECS Task or IAM user/role with permissions for the SQS queues and S3 buckets referenced.
 
-## Docker - Running the ingest process
+### Docker - Running the ingest process
 ```
 sudo docker run -d --name starsky-ingest \
 	--env AWS_ACCESS_KEY_ID="<access-key>" \
@@ -133,7 +154,7 @@ sudo docker run -d --name starsky-ingest \
 	./starsky.sh ingest
 ```
 
-## Docker - Running the ingest-manifest process
+### Docker - Running the ingest-manifest process
 ```
 sudo docker run -d --name starsky-ingest-manifest \
 	--env AWS_ACCESS_KEY_ID="<access-key>" \
@@ -151,7 +172,7 @@ sudo docker run -d --name starsky-ingest-manifest \
 
 This will listen on port 5000 by default. Add ```-p=<external-port>:5000``` to the Docker run options to map to a different local port.
 
-## Docker - Running the service process
+### Docker - Running the service process
 ```
 sudo docker run -d --name starsky-service \
 	--env AWS_ACCESS_KEY_ID="<access-key>" \
@@ -169,7 +190,7 @@ sudo docker run -d --name starsky-service \
 
 This will listen on port 5000 by default. Add ```-p=<external-port>:5000``` to the Docker run options to map to a different local port.
 
-# Using without Docker
+## Using without Docker
 
 The python code is contained in the ```app``` folder.
 
@@ -181,12 +202,12 @@ pip install -r requirements.txt
 
 This is unusual, usually the Cython requirement would be in the requirements.txt file, but due to the parallel calls that pip install makes, the installation fails.
 
-## Running the ingest process
+### Running the ingest process
 ```
 ./starsky.sh ingest
 ```
 
-## Running the service process
+### Running the service process
 ```
 ./starsky.sh service
 ```
