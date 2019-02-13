@@ -6,12 +6,12 @@ This is an OCR server and processor for the DLCS. It relies on various AWS featu
 
 - starsky_ingest_mainifest.py - SQS listener for manifest level ingest
 - starsky_ingest.py - SQS listener for image lvel ingest
-- starsky_serice.py - HTTP services
+- starsky_service.py - HTTP services
 - iris_listener.py - listens for incoming "Destiny_Manifest_Added" messages from Iris, indicating that new manfiests are available for procesing in the text pipeline. 
 
 # Operation
 
-Usually Starsky is fed by the iris_listener.py listener which recieves the Iris event stream via its queue (defined by the IRIS_QUEUE environment variable) and for any "Destiny_Manifest_Added" events it adds a message on the manifest ingest queue described below. However content may be added to starsky via one of several other entry points all based upon SQS queues. The simplest is to send a message such as:
+Usually Starsky is fed by the iris_listener.py listener which recieves the Iris event stream via its queue (defined by the IRIS_QUEUE environment variable) and for any "Destiny_Manifest_Added" events it adds a message on the manifest ingest queue described below. However content may be added to starsky via one of several other entry points all based upon SQS queues. The simplest is to send a message such as the following to the queue configured with STARSKY_MANIFEST_QUEUE. 
 
 ```
 {
@@ -20,7 +20,7 @@ Usually Starsky is fed by the iris_listener.py listener which recieves the Iris 
 }
 ```
 
-to the queue configured with STARSKY_MANIFEST_QUEUE. This will be picked up by starsky_ingest_manifest.py. The manifest URI should be any valid IIIF manifest and the session should be a uuid and is passed through stages of the pipeline so that events resultiing from the same originating event can be traced.  This will create a message such as:
+This will be picked up by starsky_ingest_manifest.py. The manifest URI should be any valid IIIF manifest and the session should be a uuid and is passed through stages of the pipeline so that events resultiing from the same originating event can be traced.  This will create a message such as:
 
 ```
 {
@@ -35,7 +35,7 @@ one for the first image on each canvas of the first sequence. These messages are
 
 ### Plaintext
 
-Gets plan text for the image uri supplied
+Gets plaintext for the image URI supplied
 
 method : GET 
 example:
@@ -51,13 +51,12 @@ returns:
 
 ### Plaintext lines
 
-Where possible this splits the plaintext representation into separate lines
-
+Where possible this splits the plaintext representation into separate lines.
 
 
 ### Coordinates
 
-Gets the coordinates of bounding boxes around phrases, typically used to avoid storing bounding boxes for every word in a search service, instead just storing the position of the first character. The input requires the uri of the image as well as the character positions of the first character of each token in the phrase which were stored when they were indexed.  The returned result may contain more than one phrase (and hence bounding boxe) if the positions supplied overlap more than one line.
+Gets the coordinates of bounding boxes around phrases, typically used to avoid storing bounding boxes for every word in a search service, instead just storing the position of the first character. The input requires the uri of the image as well as the character positions of the first character of each token in the phrase which were stored when they were indexed.  The returned result may contain more than one phrase (and hence bounding boxes) if the positions supplied overlap more than one line.
 
 method: POST
 example request:
@@ -114,6 +113,9 @@ git clone https://github.com/dlcs/starsky
 cd starsky
 sudo docker build -t starsky .
 ```
+
+## AWS CREDENTIALS NOTE
+AWS credential environment variables are not required if running as an ECS Task or IAM user/role with permissions for the SQS queues and S3 buckets referenced.
 
 ## Docker - Running the ingest process
 ```
