@@ -1,12 +1,10 @@
 import logging
 import string
 from xml.sax.saxutils import escape
-try:
-    from StringIO import StringIO
-except ImportError:
-    from io import StringIO
+import io
 from google.cloud import vision
 from google.cloud.vision import types
+from PIL import Image
 import requests
 import os
 from jinja2 import Environment, FileSystemLoader
@@ -36,6 +34,7 @@ def ocr_image(image_uri, ocr_hints):
         if not str(image_response.status_code).startswith("2"):
             logging.debug("Could not get source image")
             return None, None
+        local_image = Image.open(io.BytesIO(image_response.content))
         image = types.Image(content=image_response.content)
         response = VISION_CLIENT.document_text_detection(image=image)
         texts = response.full_text_annotation
@@ -51,8 +50,8 @@ def ocr_image(image_uri, ocr_hints):
         'languages': get_language_codes(source_page.property.detected_languages),
         # TODO : its unclear from the documentation how to interpret multiple language codes in vision api
         'main_language': source_page.property.detected_languages[0].language_code,
-        'width': source_page.width,
-        'height': source_page.height,
+        'width': local_image.width,
+        'height': local_image.height,
         'careas': []
     }
     carea_count = 1
@@ -160,7 +159,7 @@ def main():
                         level=logging.DEBUG,
                         format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s', )
 
-    res = ocr_image("https://dlc.services/iiif-img/48/19/0b50d8d1-15dd-4184-840a-e37420b392db", {})
+    res = ocr_image("https://dlc.services/iiif-img/6/1/473cc91e-689a-43e9-a52d-8a12f100bee2", {})
     print(res)
 
 
