@@ -264,22 +264,29 @@ def get_coords(image):
             # single word
             idx = start_index.get(str(phrase_or_position))
             if idx is None:
-                # todo handle
-                pass
-            word_data = word_index[idx]
-            p_boxes = box_join(get_box(word_data, scale_w, scale_h), single_box=single_box)
+                # we can't generate a box for this single word
+                p_boxes = get_null_box_object(1)
+            else:
+                word_data = word_index.get[id]
+                p_boxes = box_join(get_box(word_data, scale_w, scale_h), single_box=single_box)
+
         else:
             # phrase
             phrase_boxes = []
+            p_boxes = None
             for position in phrase_or_position:
                 idx = start_index.get(str(position))
                 if idx is None:
-                    # todo handle
-                    pass
-                word_data = word_index[idx]
-                position_box = get_box(word_data, scale_w, scale_h)
-                phrase_boxes.append(position_box)
-            p_boxes = box_join(phrase_boxes, single_box=single_box)
+                    # we don't have data for this word, generate a null box for the whole phrase
+                    p_boxes = get_null_box_object(len(phrase_or_position))
+                    break
+                else:
+                    word_data = word_index[idx]
+                    position_box = get_box(word_data, scale_w, scale_h)
+                    phrase_boxes.append(position_box)
+
+            if not p_boxes:
+                p_boxes = box_join(phrase_boxes, single_box=single_box)
         boxes.append(p_boxes)
 
     output['phrases'] = boxes
@@ -338,6 +345,14 @@ def box_to_object(box):
     return {
         "count": box[1],
         "xywh": ",".join(map(str, box[2:]))
+    }
+
+
+def get_null_box_object(count):
+
+    return {
+        "count": count,
+        "xywh": None
     }
 
 
