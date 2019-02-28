@@ -265,7 +265,7 @@ def get_coords(image):
             idx = start_index.get(str(phrase_or_position))
             if idx is None:
                 # we can't generate a box for this single word
-                p_boxes = get_null_box_object(1)
+                p_boxes = [get_null_box_object(1)]
             else:
                 word_data = word_index[idx]
                 p_boxes = box_join(get_box(word_data, scale_w, scale_h), single_box=single_box)
@@ -278,7 +278,7 @@ def get_coords(image):
                 idx = start_index.get(str(position))
                 if idx is None:
                     # we don't have data for this word, generate a null box for the whole phrase
-                    p_boxes = get_null_box_object(len(phrase_or_position))
+                    p_boxes = [get_null_box_object(len(phrase_or_position))]
                     break
                 else:
                     word_data = word_index[idx]
