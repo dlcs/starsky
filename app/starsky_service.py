@@ -267,7 +267,7 @@ def get_coords(image):
                 # we can't generate a box for this single word
                 p_boxes = get_null_box_object(1)
             else:
-                word_data = word_index.get[id]
+                word_data = word_index[idx]
                 p_boxes = box_join(get_box(word_data, scale_w, scale_h), single_box=single_box)
 
         else:
