@@ -149,7 +149,7 @@ def get_word_text(word):
 
 def get_language_codes(detected_languages):
 
-    return ' '.join(map(lambda x: x.language_code, detected_languages))
+    return detected_languages[0].language_code if detected_languages else ""
 
 
 def main():
