@@ -1,6 +1,6 @@
 FROM ubuntu:18.04
 
-RUN apt-get -y update && apt-get install -y python-pip python-dev build-essential libleptonica-dev  libtesseract-dev tesseract-ocr-eng
+RUN apt-get -y update && apt-get install -y python-pip python-dev build-essential tesseract-ocr libtesseract-dev libleptonica-dev pkg-config
 
 RUN mkdir -p /opt/starsky
 

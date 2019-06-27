@@ -30,7 +30,7 @@ def ocr_image(image_uri, ocr_hints):
     full_image = ''.join([image_uri, '/full/full/0/default.jpg'])
 
     with requests.Session() as s:
-        image_response = s.get(full_image)
+        image_response = s.get(full_image, verify=False)
         if not str(image_response.status_code).startswith("2"):
             logging.debug("Could not get source image")
             return None, None

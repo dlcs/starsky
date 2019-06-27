@@ -175,7 +175,7 @@ class Starsky:
         height = None
 
         # TODO : consider retry?
-        response = requests.get(image_uri + "/info.json")
+        response = requests.get(image_uri + "/info.json", verify=False)
         if response.status_code != 200:
             raise IOError("ImageURI not found")
         else:
@@ -241,7 +241,7 @@ class Starsky:
     def get_metadata_from_uri(metadata_uri):
 
         logging.debug("attempting to download metadata from %s", metadata_uri)
-        r = requests.get(metadata_uri)
+        r = requests.get(metadata_uri, verify=False)
         if r.status_code != 200:
             # TODO consider retry?
             logging.error("Could not obtain metadata from %s", metadata_uri)
