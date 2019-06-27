@@ -1,4 +1,4 @@
-FROM ubuntu:17.10
+FROM ubuntu:18.04
 
 RUN apt-get -y update && apt-get install -y python-pip python-dev build-essential libleptonica-dev  libtesseract-dev tesseract-ocr-eng
 
