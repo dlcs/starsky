@@ -53,4 +53,4 @@ def get_transcoder_client():
 
 def get_s3_resource():
 
-    return boto3.resource('s3')
+    return boto3.resource('s3', region_name=settings.REGION)
