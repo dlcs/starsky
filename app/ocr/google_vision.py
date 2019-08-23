@@ -8,6 +8,7 @@ from PIL import Image
 import requests
 import os
 from jinja2 import Environment, FileSystemLoader
+import math
 
 NEW_LINE_HYSTERESIS = 4
 TEMPLATE_ENVIRONMENT = Environment(
@@ -21,13 +22,43 @@ def render_template(template_filename, context):
     return TEMPLATE_ENVIRONMENT.get_template(template_filename).render(context)
 
 
-def ocr_image(image_uri, ocr_hints):
+def ocr_image(image_uri, ocr_hints, max_pixels=36000000):
+    """
+    
+    :param image_uri: The base IIIF Image API uri for the image 
+    :param ocr_hints: 
+    :param max_pixels: maximum number of pixels in the image (e.g. 36000000 for 6000 x 6000)
+    :return: 
+    """
 
     logging.debug("OCRing %s via google vision", image_uri)
 
-    # image uri is IIIF endpoint
-    # TODO : revisit - update for max vs full?
-    full_image = ''.join([image_uri, '/full/full/0/default.jpg'])
+    # New feature: requests the info.json before constructing the full image URI for fetching.
+    with requests.Session() as s:
+        info_response = s.get(image_uri, verify=False)
+        if info_response.status_code == requests.codes.ok:
+            info_json = info_response.json()
+        else:
+            info_json = None
+        if info_json:
+            height = info_json.get("height")
+            width = info_json.get("width")
+            if height and width:
+                if int(height) * int(width) > max_pixels:
+                    dimension = int(math.sqrt(max_pixels))
+                    size_parameter = "!" + str(dimension) + "," + str(dimension)
+                    logging.debug("%s is above max pixels and being constrained", image_uri)
+                else:
+                    logging.debug("%s is below the max pixels size.", image_uri)
+                    size_parameter = "full"
+            else:
+                logging.error("Info.json did not contain a width and height for %s", image_uri)
+                return None, None
+        else:
+            logging.error("Could not get an info.json response for %s", image_uri)
+            return None, None
+
+    full_image = ''.join([image_uri, '/full/', size_parameter, '/0/default.jpg'])
 
     with requests.Session() as s:
         image_response = s.get(full_image, verify=False)
