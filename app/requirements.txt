@@ -57,7 +57,7 @@ pycryptodome==3.7.3
 python-dateutil==2.8.0
 python-jose==2.0.2
 pytz==2018.9
-PyYAML==3.13
+PyYAML==5.4
 requests==2.21.0
 responses==0.10.5
 rsa==3.4.2
